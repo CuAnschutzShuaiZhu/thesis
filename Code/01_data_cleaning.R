@@ -1,0 +1,76 @@
+######################################
+### Title: 01_data_cleaning
+### Date: 06/20/2024
+### Author: Shuai Zhu
+### Description: thesis 
+######################################
+# Bayesian model. 
+### load library
+library(tidyverse)
+library(openxlsx)
+library(mclust)
+library(mixtools)
+
+### setting working directory
+working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
+setwd(working_directory)
+
+### read data
+
+df_liia <- read.xlsx('./DataRaw/LIIA Plasma and CSF Study.xlsx')%>%as_tibble()
+df_transposed <- read.csv('./DataRaw/transposed_data_240619.csv')%>%as_tibble()
+
+### clean
+df_liia$visit <- factor(substr(df_liia$`Sample.ID`, 11, 11), labels = c("baseline", "followup") ) 
+
+### plot
+df_liia%>%filter(visit=='baseline')%>%
+  ggplot( aes(x=`CSF.AB42/40.Ratio`)) +
+  geom_histogram( binwidth=0.005, fill="#69b3a2", color="#e9ecef", alpha=0.9)+
+  ggtitle('') +
+  theme(
+    plot.title = element_text(size=15)
+  )
+
+### cluster
+#### csf
+LIIA_baseline <- filter(df_liia, visit=="baseline")
+fit = Mclust(LIIA_baseline$`CSF.AB42/40.Ratio`, G=2)
+plot(fit, what="density", xlab = "CSF AB42/40 Ratio")
+
+
+mixmdl_csf <- normalmixEM(LIIA_baseline$`CSF.AB42/40.Ratio`,k = 2)
+plot_mix_comps <- function(x, mu, sigma, lam) {
+  lam * dnorm(x, mu, sigma)
+}
+data.frame(x = mixmdl_csf$x) %>%
+  ggplot() +
+  geom_histogram(aes(x, ..density..), binwidth = 0.005, colour = "black", 
+                 fill = "#69b3a2") +
+  stat_function(geom = "line", fun = plot_mix_comps,
+                args = list(mixmdl_csf$mu[1], mixmdl_csf$sigma[1], lam = mixmdl_csf$lambda[1]),
+                colour = "red", lwd = 0.5) +
+  stat_function(geom = "line", fun = plot_mix_comps,
+                args = list(mixmdl_csf$mu[2], mixmdl_csf$sigma[2], lam = mixmdl_csf$lambda[2]),
+                colour = "blue", lwd = 0.5) +
+  ylab("Density")
+summary(mixmdl_csf)
+####plasma
+LIIA_baseline_noNA <- filter(LIIA_baseline, !is.na(`Plasma.AB42/40.Ratio`))
+mixmdl_plasma <- normalmixEM(LIIA_baseline_noNA$`Plasma.AB42/40.Ratio`, k = 2)
+data.frame(x = mixmdl_plasma$x) %>%
+  ggplot() +
+  geom_histogram(aes(x, ..density..), binwidth = 0.005, colour = "black", 
+                 fill = "#69b3a2") +
+  stat_function(geom = "line", fun = plot_mix_comps,
+                args = list(mixmdl_plasma$mu[1], mixmdl_plasma$sigma[1], lam = mixmdl_plasma$lambda[1]),
+                colour = "red", lwd = 0.5) +
+  stat_function(geom = "line", fun = plot_mix_comps,
+                args = list(mixmdl_plasma$mu[2], mixmdl_plasma$sigma[2], lam = mixmdl_plasma$lambda[2]),
+                colour = "blue", lwd = 0.5) +
+  ylab("Density")
+### bayesian
+
+
+
+

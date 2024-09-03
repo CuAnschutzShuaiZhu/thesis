@@ -1,0 +1,44 @@
+---
+format: 
+  html:
+    code-fold: true
+---
+
+
+```{r,results=F,warning=F,message=F}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(multilevelmod) 
+data(riesby) 
+```
+
+## Part 1
+### 1
+```{r}
+riesby%>%group_by(week)%>%summarise(mean = mean(depr_score), sd = sd(depr_score), variance = sd(depr_score)^2)%>%knitr::kable()
+```
+```{r,message=F}
+riesby%>%group_by(endogenous,week)%>%summarise(mean = mean(depr_score), sd = sd(depr_score), variance = sd(depr_score)^2)%>%knitr::kable()
+```
+
+### 2
+For each group, the mean value of depression score decreased as week number increased. For the group of endogenous==1, variance increased as week number incrased. 
+
+### 3
+```{r,message=F}
+riesby%>%group_by(endogenous,week)%>%summarise(mean = mean(depr_score), sd = sd(depr_score), variance = sd(depr_score)^2)%>%
+  mutate(endogenous=as.character(endogenous))%>%
+  ggplot(aes(x = week,y = mean))+
+  geom_line(aes(color = endogenous))
+riesby%>%group_by(endogenous,week)%>%summarise(mean = mean(depr_score), sd = sd(depr_score), variance = sd(depr_score)^2)%>%
+  mutate(endogenous=as.character(endogenous))%>%
+  ggplot(aes(x = week,y = sd))+
+  geom_line(aes(color = endogenous))
+```
+
+
+
+
+
+
