@@ -50,13 +50,45 @@ table1(~CSF_P_Tau181+CSF_Total_Tau+CSF_AB42+CSF_AB40+CSF_ABratio+Plasma_P_Tau181
 ```
 
 ## The Bayesian approach
-
+The mixture model:
 $$
-
-\lambda\sim D(\alpha_1,\alpha_2) \\
-Z_i|\theta \sim  Bernoulli(\pi)
-
+\begin{align*}
+p(x \mid \theta)=\pi_1 p_1\left(x \mid \phi_1\right)+\pi_2 p_2\left(x \mid \phi_2\right)
+\end{align*}
 $$
+where:
+- $x$ is the observed data.
+- $\pi_1$ and $\pi_2$ are the mixing proportions (with $\pi_1+\pi_2=1$ ).
+- $p_1\left(x \mid \phi_1\right)$ and $p_2\left(x \mid \phi_2\right)$ are the component distributions.
+- $\phi_1$ and $\phi_2$ are the parameters of the component distributions.
+
+1. Mixing Proportions:
+$$
+\begin{align*}
+\left(\pi_1, \pi_2\right) \sim \operatorname{Dirichlet}\left(\alpha_1, \alpha_2\right)
+\end{align*}
+$$
+where $\alpha_1$ and $\alpha_2$ are hyperparameters. In this case the prior distribution for $\pi$ is actually beta distribution. 
+2. Means and Variances of Gaussian Components: Assume conjugate priors:
+- Means:
+$$
+\begin{align*}
+\mu_k \mid \sigma_k^2 \sim \mathcal{N}\left(\mu_{0 k}, \sigma_{0 k}^2\right)
+\end{align*}
+$$
+where $\mu_{0 k}$ and $\sigma_{0 k}^2$ are hyper parameters for the prior distribution of the mean $\mu_k$ of the $k$ th Gaussian component.
+- Variances:
+$$
+\begin{align*}
+\sigma_k^2 \sim \text { Inverse-Gamma }\left(\alpha_k, \beta_k\right)
+\end{align*}
+$$
+where $\alpha_k$ and $\beta_k$ are hyper parameters for the prior distribution of the variance $\sigma_k^2$ of the $k$ -th Gaussian component.
+
+## gibbs sampler
+
+
+
 
 
 
