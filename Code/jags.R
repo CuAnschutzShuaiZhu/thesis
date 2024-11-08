@@ -2,6 +2,7 @@
 library(rjags)
 library(coda)
 # JAGS model code for two-component bivariate normal mixture
+
 model_string <- "
 model {
   # Likelihood
@@ -29,34 +30,34 @@ model {
 "
 
 # Prepare the data for JAGS
-data_jags <- list(
-  Y = sample.mvn,  # Nx2 data matrix
-  N = nrow(data.fit),  # Number of observations
-  mu_prior = matrix(c(0.1, 0.1, 0.05, 0.08), nrow = 2, ncol = 2, byrow = T),  # Means of the prior for mu (2x2)
-  cov_mu_prior_1 = diag(2)*10^6,  # Different covariance for the priors of mu
-  cov_mu_prior_2 = diag(2)*10^6, 
-  R = diag(2)*10^-3,  # Scale matrix for the Wishart prior for Sigma_inv
-  nu = 3  # Degrees of freedom for the Wishart prior
-)
-set.seed(123)
-# Initialize JAGS model
-model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 4)
+bayesian_estimate <- function(data){
+  data_jags <- list(
+    Y = data,  # Nx2 data matrix
+    N = nrow(data),  # Number of observations
+    mu_prior = matrix(c(0.1, 0.1, 0.05, 0.08), nrow = 2, ncol = 2, byrow = T),  # Means of the prior for mu (2x2)
+    cov_mu_prior_1 = diag(2)*10^6,  # Different covariance for the priors of mu
+    cov_mu_prior_2 = diag(2)*10^6, 
+    R = diag(2)*10^-3,  # Scale matrix for the Wishart prior for Sigma_inv
+    nu = 3  # Degrees of freedom for the Wishart prior
+  )
+  set.seed(123)
+  # Initialize JAGS model
+  model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 4, quiet = T)
+  
+  # Burn-in period
+  update(model, 1000,progress.bar = 'none')
+  
+  # Draw samples from posterior
+  samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda"), quiet = T,
+                          n.iter= 5000)
+  
+  # Check summary of posterior distributions
 
-# Burn-in period
-update(model, 1000)
+  return(summary(samples))
+}
 
-# Draw samples from posterior
-samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda"), 
-                        n.iter= 5000)
 
-# Check summary of posterior distributions
-samples_summary <- summary(samples)
-samples_summary[1]$statistics[c(1:4,135:139),]
-samples_summary[2]$quantiles[c(1:4,135:139),]%>%round(.,3)
 
-## plot
-#par(mfrow = c(2,2))
-#traceplot(samples[, "mu"])
 
 
 
