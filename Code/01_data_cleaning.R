@@ -6,10 +6,10 @@
 ######################################
 # Bayesian model. 
 ### load library
-library(tidyverse)
+library(dplyr)
 library(openxlsx)
 library(mclust)
-library(mixtools)
+library(tidyr)
 
 ### setting working directory
 #working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'

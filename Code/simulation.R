@@ -46,11 +46,12 @@ run_simulation <- function(i, sample_size){
   data <- generate_data(sample_size, 0.7)
   model_freq <- Mclust(data,G = 2,verbose = F)
   model_bays <- bayesian_estimate(data)
-  make_res_table
+  make_res_table()
 }
 clusterEvalQ(cl,{
   library(MASS)
-  library(tidyverse)
+  library(dplyr)
+  library(tidyr)
   library(mclust)
   library(rjags)
   NULL
@@ -58,18 +59,12 @@ clusterEvalQ(cl,{
 clusterExport(cl, "generate_data")
 clusterExport(cl, "bayesian_estimate")
 clusterExport(cl, "model_string")
+clusterExport(cl, "make_res_table")
 #system.time(lapply(1:10, run_simulation, 200))
 
 system.time(model_list <- parLapply(cl,1:2, run_simulation,200))
+model_list%>%saveRDS('DataProcessed/samplesize250.RDS')
 
-
-
-make_res_table()
-
-ggplot(sample.mvn, aes(x = csf)) +
-  geom_histogram(binwidth = 0.01, fill = "blue", color = "black", alpha = 0.7) +
-  labs(title = "Histogram of Variable1", x = "Variable1", y = "Frequency") +
-  theme_minimal()
 
 
 
