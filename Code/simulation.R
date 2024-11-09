@@ -45,8 +45,11 @@ run_simulation <- function(i, sample_size){
   model_list <- list()
   data <- generate_data(sample_size, 0.7)
   model_freq <- Mclust(data,G = 2,verbose = F)
+  model_list[[1]] <- model_freq
   model_bays <- bayesian_estimate(data)
-  make_res_table()
+  model_list[[2]] <- model_bays$statistics
+  model_list[[3]] <- make_res_table(model_freq, model_bays)
+  model_list
 }
 clusterEvalQ(cl,{
   library(MASS)
@@ -62,7 +65,7 @@ clusterExport(cl, "model_string")
 clusterExport(cl, "make_res_table")
 #system.time(lapply(1:10, run_simulation, 200))
 
-system.time(model_list <- parLapply(cl,1:2, run_simulation,200))
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
 model_list%>%saveRDS('DataProcessed/samplesize250.RDS')
 
 
