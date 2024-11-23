@@ -14,7 +14,10 @@ model_freq$parameters$variance$sigma
 
 
 #plot(model_freq, what = "density", type = "persp")
-par(mfrow = c(2,2))
-plot(densityMclust(data.fit), what = "BIC")
-plot(model_freq, what = "classification")
-plot(model_freq, what = "uncertainty")
+plot_freq <- function(model_freq){
+  par(mfrow = c(2,2))
+  plot(densityMclust(data.fit), what = "BIC")
+  plot(model_freq, what = "classification")
+  plot(model_freq, what = "uncertainty")
+}
+
