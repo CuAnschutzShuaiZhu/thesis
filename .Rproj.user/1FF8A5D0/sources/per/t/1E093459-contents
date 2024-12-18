@@ -9,8 +9,8 @@ library(parallel)
 ## crate functions
 
 generate_data <- function(sample_size, prob){
-  N1 <- sample_size*prob ## high csf 
-  N2 <- sample_size-N1 ## lower csf
+  N1 <- sample_size*prob
+  N2 <- sample_size-N1
   mu1 <- c(0.1, 0.1)
   mu2 <- c(0.05, 0.08)
   vcov1 <- matrix(c(9e-05, 3e-05, 3e-05, 9e-05), nrow = 2, byrow = 2)
