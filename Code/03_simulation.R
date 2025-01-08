@@ -1,7 +1,9 @@
 
 library(MASS)
+library(plyr)
 library(dplyr)
 library(parallel)
+
 ## crate functions
 
 generate_data <- function(sample_size, prob){
@@ -42,15 +44,8 @@ get_theta <- function(bays_df){
   theta_df <- bays_df[-c(which(grepl("^Z", rownames(bays_model_res))==T)),]
   return(theta_df)
 }
-
-## simulation setup
-set.seed(1234)
-n_sim <- 1000
-
-cl <- makeCluster( detectCores())
-
 run_simulation <- function(i, sample_size){
-
+  set.seed(i+sample_size)
   data <- generate_data(sample_size, 0.7)
   model_freq <- Mclust(data,G = 2,verbose = F)
   model_bays <- bayesian_estimate(data)
@@ -60,30 +55,44 @@ run_simulation <- function(i, sample_size){
                      data = data)
   model_list
 }
-clusterSetRNGStream(cl, iseed = 123)
-clusterEvalQ(cl,{
-  library(MASS)
-  library(dplyr)
-  library(tidyr)
-  library(mclust)
-  library(rjags)
-  NULL
-})
-clusterExport(cl, "generate_data")
-clusterExport(cl, "bayesian_estimate")
-clusterExport(cl, "model_string")
-clusterExport(cl, "make_res_table")
-#system.time(lapply(1:10, run_simulation, 200))
 
-system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
-model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+## simulation setup
+n_sim <- 1000
+system.time(res_list <- lapply(1:n_sim, run_simulation,100))
+res_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+system.time(res_list <- lapply(1:n_sim, run_simulation,200))
+res_list%>%saveRDS('DataProcessed/samplesize200.RDS')
+system.time(res_list <- lapply(1:n_sim, run_simulation,500))
+res_list%>%saveRDS('DataProcessed/samplesize500.RDS')
 
-system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
-model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
+# 
+# cl <- makeCluster( detectCores())
+# 
 
-system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
-model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
-stopCluster(cl)
-
-
-
+# clusterSetRNGStream(cl, iseed = 123)
+# clusterEvalQ(cl,{
+#   library(MASS)
+#   library(dplyr)
+#   library(tidyr)
+#   library(mclust)
+#   library(rjags)
+#   NULL
+# })
+# clusterExport(cl, "generate_data")
+# clusterExport(cl, "bayesian_estimate")
+# clusterExport(cl, "model_string")
+# clusterExport(cl, "make_res_table")
+# #system.time(lapply(1:10, run_simulation, 200))
+# 
+# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
+# model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+# 
+# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
+# model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
+# 
+# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
+# model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
+# stopCluster(cl)
+# 
+# 
+# 

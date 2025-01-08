@@ -45,11 +45,14 @@ bayesian_estimate <- function(data){
   model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 4, quiet = T)
   
   # Burn-in period
-  update(model, 1000,progress.bar = 'none')
+  update(model, 1000, progress.bar = 'none')
   
   # Draw samples from posterior
-  samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda"), quiet = T,
-                          n.iter= 5000)
+  
+  
+  invisible(capture.output(
+    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda"), quiet = T,n.iter= 5000)
+                          ))
   
   # Check summary of posterior distributions
 
