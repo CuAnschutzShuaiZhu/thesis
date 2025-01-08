@@ -22,5 +22,6 @@ plot_freq <- function(model_freq, data){
 }
 plot_freq(model_freq, data.fit)
 
-data.fit$class <- classification
-data.fit2 <- data.fit%>%mutate(class = ifelse(class==1, 'positive', 'negative'))
+data.fit2 <- data.fit
+data.fit2$class <- classification
+data.fit2 <- data.fit2%>%mutate(class = ifelse(class==1, 'positive', 'negative'))

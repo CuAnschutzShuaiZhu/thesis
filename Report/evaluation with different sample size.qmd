@@ -1,0 +1,41 @@
+
+---
+title: ""
+author: Shuai
+date: today
+format: pdf
+--- 
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = F,warning = F, message = F) 
+```
+
+# Simulation set up
+
+To determine the required sample size for estimating reliable cut points in CSF and Plasma, simulations were conducted using a bivariate mixture model. The model was run with varying sample sizes for CSF and Plasma to assess the impact of sample size on the accuracy of cut point estimation.
+
+$$
+f\binom{y^{\text {csf }}}{y^{\text {plasma }}}=\sum_{k=1}^K \pi_k \cdot N\left(
+\begin{array}{l}
+\mu_{k}^\text{CSF} \\
+\mu_{k}^\text{Plasma}
+\end{array},
+\Sigma
+\right) 
+$$
+$$
+\\ \text { where } \mu_k^{\text {csf }}=(0.05,0.1), \mu_k^{\text {plasma }}=(0.08,0.1), \Sigma=\left(\begin{array}{ll}
+0.0001082 & 0.0000375 \\
+0.0000375 & 0.0001030
+\end{array}\right)
+$$
+
+# Scatter plot
+
+```{r,out.width="90%"}
+knitr::include_graphics('../Figures/scatter plot with different sample sizes.png')
+```
+
+
+
+

@@ -33,5 +33,5 @@ LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%
 data.fit <- LIIA_baseline%>%
   dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))%>%drop_na()
 
-
+data.fit%>%saveRDS('DataProcessed/datafit.RDS')
 

@@ -31,4 +31,15 @@ a <- lapply(1:500, get_evaluation_metric, sample_str ='sample500')
 sample500[[1]]$data
 sample500[[3]]$data
 
+### plot
+png('Figures/scatter plot with different sample sizes.png', res = 100, width = 20, height = 20, units = 'cm')
+par(mfrow = c(2,2))
+plot(data.fit, main = 'True data with sample size 130')
+plot(sample100[[1]]$data, main = 'simulated data with sample size 100')
+plot(sample200[[1]]$data, main = 'simulated data with sample size 200')
+plot(sample500[[1]]$data, main = 'simulated data with sample size 500')
+dev.off()
+
+
+
 
