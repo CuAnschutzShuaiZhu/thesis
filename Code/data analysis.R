@@ -7,7 +7,7 @@ bays_df <- sample100[[1]]$bays%>%as.data.frame()
 
 bays_z_df <- bays_df[grepl("^Z", rownames(bays_df)), ]
 bays_z_df <- round(bays_z_df, digits = 5)
-
+head(bays_z_df)
 bays_z_df[,'Mean']
 
 plot_freq(sample100[[1]]$freq, sample100[[1]]$data)
@@ -25,4 +25,8 @@ df_class <- cbind(bayes_class= bays_z_df[,'Mean'], ture_class = c(rep(0, 70), re
 head(df_class)
 
 table1( ~ bayes_class | ture_class, data=df_class)
+
+## p(csf|plasma) = 
+
+
 

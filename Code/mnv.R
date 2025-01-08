@@ -1,4 +1,4 @@
-working_directory <- "C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis"
+
 ## frequentest
 
 ## specify data
@@ -20,4 +20,7 @@ plot_freq <- function(model_freq, data){
   plot(model_freq, what = "classification")
   plot(model_freq, what = "uncertainty")
 }
+plot_freq(model_freq, data.fit)
 
+data.fit$class <- classification
+data.fit2 <- data.fit%>%mutate(class = ifelse(class==1, 'positive', 'negative'))

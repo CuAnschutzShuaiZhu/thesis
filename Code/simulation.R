@@ -13,7 +13,7 @@ generate_data <- function(sample_size, prob){
   N2 <- sample_size-N1 ## lower csf
   mu1 <- c(0.1, 0.1)
   mu2 <- c(0.05, 0.08)
-  vcov1 <- matrix(c(9e-05, 3e-05, 3e-05, 9e-05), nrow = 2, byrow = 2)
+  vcov1 <- matrix(c(1.082257e-04, 3.727593e-05, 3.727593e-05, 1.030233e-04), nrow = 2, byrow = 2)
   sample1 <- mvrnorm(N1, mu = mu1, Sigma = vcov1 )
   sample2 <- mvrnorm(N2, mu = mu2, Sigma = vcov1 )
   sample.mvn <- rbind(sample1,sample2)%>%data.frame()
@@ -53,6 +53,7 @@ run_simulation <- function(i, sample_size){
                      data = data)
   model_list
 }
+
 clusterEvalQ(cl,{
   set.seed(1234)
   library(MASS)
@@ -68,14 +69,28 @@ clusterExport(cl, "model_string")
 clusterExport(cl, "make_res_table")
 #system.time(lapply(1:10, run_simulation, 200))
 
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
+model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
+model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
 system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
 model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
 
 #plot_freq(model_list[[1]]$freq)
 
+#### data.fit
 
 
-
+# bays_model <- bayesian_estimate(data.fit)
+# bays_model_res <- bays_model$statistics%>%as.data.frame()
+# 
+# class_bays <- bays_model_res[grepl("^Z", rownames(bays_model_res)),'Mean']%>%round()
+# bays_model_res[-c(which(grepl("^Z", rownames(bays_model_res))==T)),]
+# data_sim <- generate_data(100, 0.7)
+# plot(data_sim)
+# plot(data.fit$`CSF.AB42/40.Ratio`, data.fit$`Plasma.AB42/40.Ratio`)
+# 
+# Mclust(data_sim,G = 2)%>%plot_freq(.,data_sim)
 
 
 

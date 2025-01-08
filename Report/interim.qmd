@@ -4,7 +4,6 @@ author: Shuai
 date: today
 format: typst
 fontsize: 12pt
-geometry: margin=1in
 --- 
 
 ```{=typst} 
@@ -16,3 +15,4 @@ knitr::opts_chunk$set(echo = F,warning = F, message = F)
 ```
 
 Reduced levels of the protein amyloid-beta42 (Aβ42) and elevated levels of the protein tau or its phosphorylated isoform (ptau181) are suggestive of underlying AD pathology
+

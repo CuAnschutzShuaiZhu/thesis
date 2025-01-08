@@ -6,12 +6,15 @@
 ######################################
 # Bayesian model. 
 ### load library
-library(dplyr)
+library(tidyverse)
 library(openxlsx)
 library(mclust)
 library(tidyr)
 library(table1)
+library(pROC)
+library(cutpointr)
 ### setting working directory
+# working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
 working_directory <-  'C:\\Users\\zhu-s\\OneDrive\\Graduate File\\Course\\Thesis'
 setwd(working_directory)
 
@@ -24,10 +27,17 @@ df_transposed <- read.csv('./DataRaw/transposed_data_240619.csv')%>%as_tibble()
 df_liia$visit <- factor(substr(df_liia$`Sample.ID`, 11, 11), labels = c("baseline", "followup")) 
 
 
-LIIA_baseline <- filter(df_liia, visit=="baseline")
+LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%
+  mutate(across(c(`Plasma.P-Tau181.(pg/ml)`, `Plasma.AB40.(pg/ml)`), as.numeric))
+
 data.fit <- LIIA_baseline%>%
   dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))%>%drop_na()
 
 
+
+hist(LIIA_baseline$`Plasma.AB42/40.Ratio`)
+
+fit_cutpoint_plasma <- cutpointr(data = data.fit2, x = `Plasma.AB42/40.Ratio`, class = class)
+data.frame(summary(fit_cutpoint_plasma)$cutpointr[[1]][,c(2,4:7)])
 
 
