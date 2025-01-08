@@ -1,7 +1,3 @@
-#source('Code/mnv.R')
-source('Code/01_data_cleaning.R')
-source('Code/jags.R')
-
 
 library(MASS)
 library(dplyr)
@@ -36,6 +32,17 @@ make_res_table <- function(model_freq,samples_summary){
   df_res%>%round(.,digits = 7)
 }
 
+get_class <- function(bays_df){
+  z_df <- bays_df[grepl("^Z", rownames(bays_df)), ]
+  return(z_df)
+  }
+
+get_theta <- function(bays_df){
+
+  theta_df <- bays_df[-c(which(grepl("^Z", rownames(bays_model_res))==T)),]
+  return(theta_df)
+}
+
 ## simulation setup
 set.seed(1234)
 n_sim <- 1000
@@ -53,9 +60,8 @@ run_simulation <- function(i, sample_size){
                      data = data)
   model_list
 }
-
+clusterSetRNGStream(cl, iseed = 123)
 clusterEvalQ(cl,{
-  set.seed(1234)
   library(MASS)
   library(dplyr)
   library(tidyr)
@@ -79,18 +85,5 @@ model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
 #plot_freq(model_list[[1]]$freq)
 
 #### data.fit
-
-
-# bays_model <- bayesian_estimate(data.fit)
-# bays_model_res <- bays_model$statistics%>%as.data.frame()
-# 
-# class_bays <- bays_model_res[grepl("^Z", rownames(bays_model_res)),'Mean']%>%round()
-# bays_model_res[-c(which(grepl("^Z", rownames(bays_model_res))==T)),]
-# data_sim <- generate_data(100, 0.7)
-# plot(data_sim)
-# plot(data.fit$`CSF.AB42/40.Ratio`, data.fit$`Plasma.AB42/40.Ratio`)
-# 
-# Mclust(data_sim,G = 2)%>%plot_freq(.,data_sim)
-
 
 

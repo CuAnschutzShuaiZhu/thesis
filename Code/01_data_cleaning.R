@@ -14,8 +14,8 @@ library(table1)
 library(pROC)
 library(cutpointr)
 ### setting working directory
-# working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
-working_directory <-  'C:\\Users\\zhu-s\\OneDrive\\Graduate File\\Course\\Thesis'
+working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
+# working_directory <-  'C:\\Users\\zhu-s\\OneDrive\\Graduate File\\Course\\Thesis'
 setwd(working_directory)
 
 ### read data
@@ -33,11 +33,5 @@ LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%
 data.fit <- LIIA_baseline%>%
   dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))%>%drop_na()
 
-
-
-hist(LIIA_baseline$`Plasma.AB42/40.Ratio`)
-
-fit_cutpoint_plasma <- cutpointr(data = data.fit2, x = `Plasma.AB42/40.Ratio`, class = class)
-data.frame(summary(fit_cutpoint_plasma)$cutpointr[[1]][,c(2,4:7)])
 
 
