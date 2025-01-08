@@ -20,8 +20,6 @@ dtroc <- function(data,threshold1, threshold2){
 roc_obj <- roc(as.numeric(true_class == 1), as.numeric(pred_class == 1))
 roc_obj <- roc(true_class, data$plasma)
 
-
-
 plot(roc_obj)
 
 

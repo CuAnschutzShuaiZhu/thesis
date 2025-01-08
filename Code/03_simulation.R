@@ -77,13 +77,13 @@ clusterExport(cl, "make_res_table")
 
 system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
 model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+
 system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
 model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
+
 system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
 model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
+stopCluster(cl)
 
-#plot_freq(model_list[[1]]$freq)
-
-#### data.fit
 
 
