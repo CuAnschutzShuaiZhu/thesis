@@ -7,13 +7,15 @@ format: pdf
 --- 
 
 ```{r, include=FALSE}
+library(dplyr)
+library(flextable)
+library(kableExtra)
 knitr::opts_chunk$set(echo = F,warning = F, message = F) 
 ```
 
 # Simulation set up
 
-To determine the required sample size for estimating reliable cut points in CSF and Plasma, simulations were conducted using a bivariate mixture model. The model was run with varying sample sizes of 100, 200, and 500 to assess the impact of sample size on the accuracy of cut point estimation. For each sample size, 1,000 datasets were simulated. 
-
+A single optimal cut-off point was identified using the Youden method within a Bayesian classification framework, applied to a bivariate mixture model of CSF and plasma. For each sample size, the average cut-off point, the maximum of sensitivity + specificity, accuracy, area under the ROC curve (AUC), and prevalence were calculated across 1,000 datasets. However, it remains unclear why the maximum of sensitivity + specificity, accuracy, and AUC values decrease as the sample size increases.
 
 
 $$
@@ -33,12 +35,20 @@ $$
 $$
 
 
-```{r,out.width="90%",fig.cap="scatter plot of real data and one sample simuation data of each sample size"}
-knitr::include_graphics('../Figures/scatter plot with different sample sizes.png')
-```
 
 
 ## Findings
+A single optimal cut-off point was identified using the Youden method within a Bayesian framework classification, applied to a bivariate mixture model of CSF and plasma. For each sample size, the average cut-off point, maximum of sensitivity + specificity, accuracy, area under the ROC curve (AUC), and prevalence were calculated across 1,000 datasets. However, I have yet to resolve why the maximum of sensitivity + specificity, accuracy, and AUC values decrease as the sample size increases. 
 
+```{r}
+readRDS('../DataProcessed/df class metric.RDS')%>%round(.,digits = 4)%>%kable()%>%kable_styling(font_size = 8)
+```
 
+```{r,out.width="50%",fig.cap="scatter plot of real data and one sample simuation data of each sample size"}
+knitr::include_graphics('../Figures/scatter plot with different sample sizes.png')
+```
+
+```{r,out.width="50%",fig.cap="scatter plot of real data and one sample simuation data of each sample size with classification"}
+knitr::include_graphics('../Figures/scatter plot of csf and plasma with classificaton.png')
+```
 

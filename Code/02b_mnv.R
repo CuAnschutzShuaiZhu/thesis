@@ -24,4 +24,5 @@ plot_freq(model_freq, data.fit)
 
 data.fit2 <- data.fit
 data.fit2$class <- classification
-data.fit2 <- data.fit2%>%mutate(class = ifelse(class==1, 'positive', 'negative'))
+data.fit2 <- data.fit2%>%mutate(class = ifelse(class==1, 'Positive', 'Negative'))
+colnames(data.fit2 ) <- c("csf", "plasma", 'class')
