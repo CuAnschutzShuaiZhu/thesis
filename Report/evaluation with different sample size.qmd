@@ -15,33 +15,34 @@ knitr::opts_chunk$set(echo = F,warning = F, message = F)
 
 # Simulation set up
 
-A single optimal cut-off point was identified using the Youden method within a Bayesian classification framework, applied to a bivariate mixture model of CSF and plasma. For each sample size, the average cut-off point, the maximum of sensitivity + specificity, accuracy, area under the ROC curve (AUC), and prevalence were calculated across 1,000 datasets. However, it remains unclear why the maximum of sensitivity + specificity, accuracy, and AUC values decrease as the sample size increases.
+A single optimal cut-off point was identified using the Youden method within a Bayesian classification framework, applied to a bivariate mixture model of CSF and plasma. The amyloid positive was define as z > 0.5. Subject was label as amyloid positive when k = 2. 
 
 
 $$
-f\binom{y^{\text {csf }}}{y^{\text {plasma }}}=\sum_{k=1}^K \pi_k \cdot N\left(
+f\binom{y^{\text {csf }}}{y^{\text {plasma }}}=\sum_{k=1}^2 \pi_k \cdot N\left(
 \begin{array}{l}
-\mu_{k}^\text{CSF} \\
-\mu_{k}^\text{Plasma}
+\mu_{k}
 \end{array},
 \Sigma
 \right) 
 $$
 $$
-\\ \text { where } \mu_k^{\text {csf }}=(0.05,0.1), \mu_k^{\text {plasma }}=(0.08,0.1), \Sigma=\left(\begin{array}{ll}
+\\ \text { where } \mu_\text{1}=(0.05,0.08), \mu_\text{2}=(0.1,0.1), \Sigma=\left(\begin{array}{ll}
 0.0001082 & 0.0000375 \\
 0.0000375 & 0.0001030
-\end{array}\right)
+\end{array}\right), \pi_1 = 0.3, \pi_2 = 0.7
 $$
 
 
 
 
 ## Findings
-A single optimal cut-off point was identified using the Youden method within a Bayesian framework classification, applied to a bivariate mixture model of CSF and plasma. For each sample size, the average cut-off point, maximum of sensitivity + specificity, accuracy, area under the ROC curve (AUC), and prevalence were calculated across 1,000 datasets. However, I have yet to resolve why the maximum of sensitivity + specificity, accuracy, and AUC values decrease as the sample size increases. 
+A single optimal cut-off point was identified using the Youden method within a Bayesian framework classification, applied to a bivariate mixture model of CSF and plasma. Youden method select the cut-point maximizing Youden's J statistic which is sensitivity + specificity -1. For each sample size, the average cut-off point, sensitivity, specificity, accuracy were calculated across 1,000 datasets. However, I have yet to resolve why the sensitivity, specificity, accuracy, and AUC values decrease as the sample size increases. 
+
+
 
 ```{r}
-readRDS('../DataProcessed/df class metric.RDS')%>%round(.,digits = 4)%>%kable()%>%kable_styling(font_size = 8)
+readRDS('../DataProcessed/df class metric.RDS')%>%kable()%>%kable_styling(font_size = 8)
 ```
 
 ```{r,out.width="50%",fig.cap="scatter plot of real data and one sample simuation data of each sample size"}

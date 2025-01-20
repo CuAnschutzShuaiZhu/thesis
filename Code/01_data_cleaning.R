@@ -13,6 +13,7 @@ library(tidyr)
 library(table1)
 library(pROC)
 library(cutpointr)
+library(caret)
 ### setting working directory
 working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
 # working_directory <-  'C:\\Users\\zhu-s\\OneDrive\\Graduate File\\Course\\Thesis'
