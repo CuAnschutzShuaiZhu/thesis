@@ -54,7 +54,7 @@ bayesian_estimate <- function(data){
   
   
   invisible(capture.output(
-    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda"), quiet = T,n.iter= 5000)
+    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda",'Y_pred'), quiet = T,n.iter= 5000)
                           ))
   
   # Check summary of posterior distributions
