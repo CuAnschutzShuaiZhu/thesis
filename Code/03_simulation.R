@@ -50,21 +50,14 @@ run_simulation <- function(i, sample_size){
   model_freq <- Mclust(data,G = 2,verbose = F)
   model_bays <- bayesian_estimate(data)
   model_list <- list(freq = model_freq,
-                     bays = model_bays$statistics,
-                     res_table = make_res_table(model_freq, model_bays),
+                     bays = summary(model_bays)$statistics,
+                     res_table = make_res_table(model_freq, summary(model_bays)),
                      data = data)
   model_list
 }
 
 ## simulation setup
-# n_sim <- 1000
-# system.time(res_list <- lapply(1:n_sim, run_simulation,100))
-# res_list%>%saveRDS('DataProcessed/samplesize100.RDS')
-# system.time(res_list <- lapply(1:n_sim, run_simulation,200))
-# res_list%>%saveRDS('DataProcessed/samplesize200.RDS')
-# system.time(res_list <- lapply(1:n_sim, run_simulation,500))
-# res_list%>%saveRDS('DataProcessed/samplesize500.RDS')
-
+n_sim <- 1000
 cl <- makeCluster( detectCores())
 clusterSetRNGStream(cl, iseed = 123)
 clusterEvalQ(cl,{
@@ -79,7 +72,12 @@ clusterExport(cl, "generate_data")
 clusterExport(cl, "bayesian_estimate")
 clusterExport(cl, "model_string")
 clusterExport(cl, "make_res_table")
-system.time(lapply(1:10, run_simulation, 200))
+
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,50))
+model_list%>%saveRDS('DataProcessed/samplesize50.RDS')
+
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,70))
+model_list%>%saveRDS('DataProcessed/samplesize70.RDS')
 
 system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
 model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
