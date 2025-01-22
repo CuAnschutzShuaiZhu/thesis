@@ -1,8 +1,23 @@
 model {
-    for (i in 1:N) {
-        x[i] ~ dnorm(mu, tau)
-    }
-    mu ~ dnorm(, .0001)
-    tau <- pow(sigma, -2)
-    sigma ~ dunif(, 100)
+  # Likelihood
+  for (i in 1:N) {
+    Z[i] ~ dbern(lambda)  # Latent variable for component assignment
+    
+    # Shared covariance matrix (Sigma_inv) for both components
+    Y[i,1:2] ~ dmnorm(mu[Z[i] + 1,], Sigma_inv[,])  # Precision matrix used here
+  }
+  
+  # Priors
+  # Mixture proportion (lambda)
+  lambda ~ dbeta(1, 1)  # Flat prior for mixture proportion
+
+  # Priors for the means (each component has different covariance for the prior)
+
+  mu[1, 1:2] ~ dmnorm(mu_prior[1,], cov_mu_prior_1[,])
+  mu[2, 1:2] ~ dmnorm(mu_prior[2,], cov_mu_prior_2[,])
+
+
+  # Shared precision matrix (inverse of covariance matrix)
+  Sigma_inv[1:2,1:2] ~ dwish(R[,], nu)  # Wishart prior for the precision matrix
+  Sigma[1:2,1:2] <- inverse(Sigma_inv[,])  # Covariance matrix is the inverse of precision
 }

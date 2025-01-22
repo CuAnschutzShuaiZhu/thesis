@@ -50,7 +50,7 @@ run_simulation <- function(i, sample_size){
   model_freq <- Mclust(data,G = 2,verbose = F)
   model_bays <- bayesian_estimate(data)
   model_list <- list(freq = model_freq,
-                     bays = summary(model_bays)$statistics,
+                     bays = model_bays,
                      res_table = make_res_table(model_freq, summary(model_bays)),
                      data = data)
   model_list

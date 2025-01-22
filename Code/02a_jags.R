@@ -26,6 +26,12 @@ model {
   # Shared precision matrix (inverse of covariance matrix)
   Sigma_inv[1:2,1:2] ~ dwish(R[,], nu)  # Wishart prior for the precision matrix
   Sigma[1:2,1:2] <- inverse(Sigma_inv[,])  # Covariance matrix is the inverse of precision
+  
+  # Posterior predictive distribution
+  for (i in 1:N) {
+    
+    Y[i,1:2] ~ dmnorm(mu[Z[i] + 1,], Sigma_inv[,])  # Precision matrix used here
+}
 }
 "
 
@@ -58,7 +64,6 @@ bayesian_estimate <- function(data){
 
   return((samples))
 }
-
 
 
 
