@@ -56,7 +56,7 @@ bayesian_estimate <- function(data){
   
   # Check summary of posterior distributions
 
-  return(summary(samples))
+  return((samples))
 }
 
 

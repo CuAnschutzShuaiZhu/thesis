@@ -57,42 +57,39 @@ run_simulation <- function(i, sample_size){
 }
 
 ## simulation setup
-n_sim <- 1000
-system.time(res_list <- lapply(1:n_sim, run_simulation,100))
-res_list%>%saveRDS('DataProcessed/samplesize100.RDS')
-system.time(res_list <- lapply(1:n_sim, run_simulation,200))
-res_list%>%saveRDS('DataProcessed/samplesize200.RDS')
-system.time(res_list <- lapply(1:n_sim, run_simulation,500))
-res_list%>%saveRDS('DataProcessed/samplesize500.RDS')
+# n_sim <- 1000
+# system.time(res_list <- lapply(1:n_sim, run_simulation,100))
+# res_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+# system.time(res_list <- lapply(1:n_sim, run_simulation,200))
+# res_list%>%saveRDS('DataProcessed/samplesize200.RDS')
+# system.time(res_list <- lapply(1:n_sim, run_simulation,500))
+# res_list%>%saveRDS('DataProcessed/samplesize500.RDS')
 
-# 
-# cl <- makeCluster( detectCores())
-# 
+cl <- makeCluster( detectCores())
+clusterSetRNGStream(cl, iseed = 123)
+clusterEvalQ(cl,{
+  library(MASS)
+  library(dplyr)
+  library(tidyr)
+  library(mclust)
+  library(rjags)
+  NULL
+})
+clusterExport(cl, "generate_data")
+clusterExport(cl, "bayesian_estimate")
+clusterExport(cl, "model_string")
+clusterExport(cl, "make_res_table")
+system.time(lapply(1:10, run_simulation, 200))
 
-# clusterSetRNGStream(cl, iseed = 123)
-# clusterEvalQ(cl,{
-#   library(MASS)
-#   library(dplyr)
-#   library(tidyr)
-#   library(mclust)
-#   library(rjags)
-#   NULL
-# })
-# clusterExport(cl, "generate_data")
-# clusterExport(cl, "bayesian_estimate")
-# clusterExport(cl, "model_string")
-# clusterExport(cl, "make_res_table")
-# #system.time(lapply(1:10, run_simulation, 200))
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
-# model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
-# model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
-# model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
-# stopCluster(cl)
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
+model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
+
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
+model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
+
+system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
+model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
+stopCluster(cl)
 # 
 # 
 # 

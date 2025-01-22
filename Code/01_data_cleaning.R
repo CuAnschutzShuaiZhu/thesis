@@ -14,6 +14,7 @@ library(table1)
 library(pROC)
 library(cutpointr)
 library(caret)
+library(gridExtra)
 ### setting working directory
 working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
 # working_directory <-  'C:\\Users\\zhu-s\\OneDrive\\Graduate File\\Course\\Thesis'
@@ -33,6 +34,6 @@ LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%
 
 data.fit <- LIIA_baseline%>%
   dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))%>%drop_na()
-
+colnames(data.fit ) <- c("csf", "plasma")
 data.fit%>%saveRDS('DataProcessed/datafit.RDS')
 
