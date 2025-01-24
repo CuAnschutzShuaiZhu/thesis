@@ -1,21 +1,5 @@
-get_df_withclass <- function(index,sample_str){
-  if(sample_str=='sample100'){
-    sample <- sample100[[index]]
-  }else if (sample_str=='sample200'){
-    sample <- sample200[[index]]
-  }else if (sample_str=='sample500'){
-    sample <- sample500[[index]]
-  }
-  bays_df <- sammary(sample$bays)%>%as.data.frame()
-  classification <- get_class(bays_df)[,'Mean']%>%round()
-  classification <- ifelse(classification ==1, 'Negative', 'Positive')
-  data <- sample$data%>%as_tibble()
-  data$class <- classification
-  return(data)
-}
-
-get_evaluation_metric <- function(index,sample_str){
-  data <- get_df_withclass(index,sample_str)
+get_evaluation_metric <- function(index, sample){
+  data <- sample[[index]]
   fit_cutpoint_Plasma <- suppressMessages(cutpointr(data = data, x =plasma, class = class))
   data%>%mutate(cutpoint_class = ifelse(plasma>fit_cutpoint_Plasma$optimal_cutpoint,'Positive','Negative'))
   class <- factor(data$class)
@@ -30,6 +14,15 @@ get_evaluation_metric <- function(index,sample_str){
   
 }
 
+get_evaluation_metric2 <- function(sample){
+  train <- sample$data[sample$data$istrain==1,]
+  test <- sample$data[sample$data$istrain==0,]
+  fit_cutpoint_Plasma <- suppressMessages(cutpointr(data = train, x =plasma, class = bayes_class))
+  test$cutpoint_class <- factor(ifelse(test$plasma>fit_cutpoint_Plasma$optimal_cutpoint, 'Positive', 'Negative'))
+  test$true_class <- factor(test$true_class)
+  class_evaluation <- confusionMatrix(test$cutpoint_class, test$true_class, positive = 'Positive')
+}
+
 col_summary <- function(data){
   apply(data, 2, function(x) {
     sprintf("%.4f (%.4f)", mean(x), sd(x))
@@ -42,7 +35,7 @@ sample100 <- readRDS('DataProcessed/samplesize100.RDS')
 sample200 <- readRDS('DataProcessed/samplesize200.RDS')
 sample500 <- readRDS('DataProcessed/samplesize500.RDS')
 
-## 100 sample size
+## simulation version 1
 fit_cutpoint_Plasma_real <- suppressMessages(cutpointr(data = data.fit2, x =`plasma`, class = class))[,c(2,5:7)]%>%
   as.data.frame()%>%round(.,digits = 4)
 df_metric_50 <- do.call(rbind, lapply(1:100, get_evaluation_metric, sample_str ='sample50'))
@@ -55,6 +48,14 @@ df_metric_all <- rbind(df_metric_100%>%col_summary(), df_metric_200%>%col_summar
 rownames(df_metric_all) <- c( 'simulated data with sample size 100', 'simulated data with sample size 200','simulated data with sample size 500')
 #colnames(df_metric_all)[2] <-c('Accuracy') 
 df_metric_all%>%saveRDS('DataProcessed/df class metric.RDS')
+
+
+## simulation version 2
+samplesize50traintest <- readRDS("DataProcessed/samplesize50traintest.RDS")
+sample <- samplesize200traintest [[1]]
+
+
+
 
 
 
