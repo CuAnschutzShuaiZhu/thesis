@@ -1,7 +1,6 @@
 ## Bayesian
 library(rjags)
 library(coda)
-library(brms)
 # JAGS model code for two-component bivariate normal mixture
 
 model_string <- "
@@ -34,6 +33,8 @@ model {
 }
 "
 
+
+
 # Prepare the data for JAGS
 bayesian_estimate <- function(data){
   data <- data[,1:2]
@@ -64,31 +65,6 @@ bayesian_estimate <- function(data){
   return((samples))
 }
 
-bayesian_estimate_jagsui <- function(data){
-  data_jags <- list(
-    Y = data[,1:2],  # Nx2 data matrix
-    N = nrow(data),  # Number of observations
-    mu_prior = matrix(c(0.1, 0.1, 0.05, 0.08), nrow = 2, ncol = 2, byrow = T),  # Means of the prior for mu (2x2)
-    cov_mu_prior_1 = diag(2)*10^6,  # Different covariance for the priors of mu
-    cov_mu_prior_2 = diag(2)*10^6, 
-    R = diag(2)*10^-4,  # Scale matrix for the Wishart prior for Sigma_inv
-    nu = 3  # Degrees of freedom for the Wishart prior
-  )
-  set.seed(123)
-  sample <- jags(data = data_jags,
-              parameters.to.save = c("mu", "Sigma", "Z", "lambda"),
-              model.file = textConnection(model_string),
-              n.chains = 4,
-              n.adapt = 1000,
-              n.iter = 10000,
-              n.burnin = 3000,
-              n.thin = 2,
-              parallel = T)
-  
-  # Check summary of posterior distributions
-  
-  return((samples))
-}
 
 
 

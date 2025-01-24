@@ -1,11 +1,11 @@
 
 source('Code/03a_simulation.R')
 
-run_simulation_train_test <- function(i, sample_size){
+run_simulation_train_test <- function(i, sample_size, datapartition){
   set.seed(i+sample_size)
   data <- generate_data(sample_size, 0.7)
   model_freq <- Mclust(data[,1:2],G = 2,verbose = F)
-  train_index <- createDataPartition(1:sample_size, p = 0.5, list = T)
+  train_index <- createDataPartition(1:sample_size, p = datapartition, list = T)
   data[train_index$Resample1,'istrain'] <- 1
   data[-train_index$Resample1,'istrain'] <- 0
   train <- data[train_index$Resample1,]
@@ -21,7 +21,7 @@ run_simulation_train_test <- function(i, sample_size){
   model_list
 }
 
-parallel_sim <- function(sample_size, n_sim){
+parallel_sim <- function(sample_size, n_sim, datapartition){
   cl <- makeCluster(6)
   clusterEvalQ(cl,{
     library(MASS)
@@ -37,12 +37,14 @@ parallel_sim <- function(sample_size, n_sim){
   clusterExport(cl, "model_string")
   clusterExport(cl, "make_res_table")
   clusterExport(cl, "get_class")
-  model_list <- parLapply(cl,1:n_sim, run_simulation_train_test, 50)
+  model_list <- parLapply(cl,1:n_sim, run_simulation_train_test, sample_size,datapartition)
   stopCluster(cl)
-  saveRDS(model_list, file = paste0('DataProcessed/samplesize',sample_size,'traintest.RDS'))
+  saveRDS(model_list, file = paste0('DataProcessed/samplesize',sample_size,'partition',datapartition,'traintest.RDS'))
 }
 start <- Sys.time()
-parallel_sim(200, 6)
+parallel_sim(200, 6, 0.3)
+parallel_sim(200, 6, 0.5)
+parallel_sim(200, 6, 0.8)
 end <- Sys.time()
 difftime(end, start, units = 'mins')
 

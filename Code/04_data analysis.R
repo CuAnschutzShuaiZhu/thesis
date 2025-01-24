@@ -21,6 +21,7 @@ get_evaluation_metric2 <- function(sample){
   test$cutpoint_class <- factor(ifelse(test$plasma>fit_cutpoint_Plasma$optimal_cutpoint, 'Positive', 'Negative'))
   test$true_class <- factor(test$true_class)
   class_evaluation <- confusionMatrix(test$cutpoint_class, test$true_class, positive = 'Positive')
+  class_evaluation
 }
 
 col_summary <- function(data){
@@ -51,9 +52,9 @@ df_metric_all%>%saveRDS('DataProcessed/df class metric.RDS')
 
 
 ## simulation version 2
-samplesize50traintest <- readRDS("DataProcessed/samplesize50traintest.RDS")
+samplesize200traintest <- readRDS("DataProcessed/samplesize200partition0.3traintest.RDS")
 sample <- samplesize200traintest [[1]]
-
+get_evaluation_metric2(sample)
 
 
 
