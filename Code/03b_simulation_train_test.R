@@ -15,7 +15,7 @@ run_simulation_train_test <- function(i, sample_size, datapartition){
   classification <- get_class(bays_df)[,'Mean']%>%round()
   data[train_index$Resample1,'bayes_class'] <- classification
   model_list <- list(freq = model_freq,
-                     bays = model_bays,
+                     bays = summary(model_bays),
                      res_table = make_res_table(model_freq, summary(model_bays)),
                      data = data)
   model_list
@@ -41,6 +41,8 @@ parallel_sim <- function(sample_size, n_sim, datapartition){
   stopCluster(cl)
   saveRDS(model_list, file = paste0('DataProcessed/samplesize',sample_size,'partition',datapartition,'traintest.RDS'))
 }
+
+## example of simulation
 start <- Sys.time()
 parallel_sim(200, 6, 0.3)
 parallel_sim(200, 6, 0.5)

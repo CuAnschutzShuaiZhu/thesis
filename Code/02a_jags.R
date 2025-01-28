@@ -68,6 +68,3 @@ bayesian_estimate <- function(data){
 
 
 
-
-
-
