@@ -1,7 +1,11 @@
 ---
 title: "Plasma amyloid-beta biomarker for Alzheimer's disease"
 author: Shuai Zhu 
-output: beamer_presentation
+output: 
+  beamer_presentation:
+    slide_level: 1
+    toc: true
+
 ---
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = F,warning = F, message = F)
@@ -24,6 +28,7 @@ knitr::opts_chunk$set(echo = F,warning = F, message = F)
 library(knitr)
 library(kableExtra)
 library(table1)
+library(openxlsx)
 t1kable(readRDS('../DataProcessed/table1.RDS'))%>% kable_styling(font_size = 6)
 ```
 
@@ -61,7 +66,11 @@ $$
 
 - Gibbs sampler was used to estimate the parameter of bivariate Gaussian mixture model
   - The Gibbs sampler is a Markov Chain Monte Carlo (MCMC) algorithm commonly used for sampling from complex, high-dimensional probability distributions
-  - Parameters: $\mu_1^{csf}, \mu_1^{plasma},\mu_2^{csf}, \mu_2^{plasma}, \Sigma, \pi_1, z_{1-130}$
+  - Parameters$\theta$: $\mu_1^{csf}, \mu_1^{plasma},\mu_2^{csf}, \mu_2^{plasma}, \Sigma, \pi_1,\pi_2, z_{1-130}$
+
+# Gibbs sampler
+
+
 
 # Simulation 
 We simulate 1,000 data for each of sample size 100, 200, 500 using parameter from real data and sensitivity, specificity, accuracy were calculated
@@ -82,6 +91,12 @@ readRDS('../DataProcessed/df class metric.RDS')%>%kable()%>% kable_styling(font_
 include_graphics('../Figures/traceplot.png')
 ```
 
+# Train test partition
+The sample size is 200, and the data was split into training and testing sets with varying proportions: 30% training data, 50% training data, and 80% training data. The remaining data in each case was used for testing performance. As expected, the performance of our method improves as the size of the training data increases.
+
+```{r}
+read.xlsx('../DataProcessed/samplesize200partition.xlsx')%>%kable()%>%kable_styling(font_size = 7)
+```
 
 
 

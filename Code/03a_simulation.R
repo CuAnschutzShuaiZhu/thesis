@@ -11,7 +11,7 @@ generate_data <- function(sample_size, prob){
   N2 <- sample_size-N1 ## lower csf
   mu1 <- c(0.1, 0.1)
   mu2 <- c(0.05, 0.08)
-  vcov1 <- matrix(c(1.082257e-04, 3.727593e-05, 3.727593e-05, 1.030233e-04), nrow = 2, byrow = 2)
+  vcov1 <- matrix(c(0.000108 , 0.000037, 0.000037 , 0.000103), nrow = 2, byrow = 2)
   sample1 <- mvrnorm(N1, mu = mu1, Sigma = vcov1 )
   sample2 <- mvrnorm(N2, mu = mu2, Sigma = vcov1 )
   sample.mvn <- rbind(sample1,sample2)%>%data.frame()

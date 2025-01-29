@@ -34,14 +34,13 @@ col_summary <- function(data){
 
 
 ## simulation version 2
-samplesize200partition0.3traintest <- readRDS("DataProcessed/samplesize200partition0.3traintest.RDS")
-sample <- samplesize200traintest [[1]]
-get_evaluation_metric2(sample)
-
-do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.3traintest.RDS"), get_evaluation_metric2))%>%col_summary()
-do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.5traintest.RDS"), get_evaluation_metric2))%>%col_summary()
-do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.8traintest.RDS"), get_evaluation_metric2))%>%col_summary()
-
+samplesize200partition0.3traintest<- do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.3traintest.RDS"), get_evaluation_metric2))
+samplesize200partition0.5traintest <- do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.5traintest.RDS"), get_evaluation_metric2))
+samplesize200partition0.8traintest <- do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.8traintest.RDS"), get_evaluation_metric2))
+cbind(train_size = c('0.3', '0.5', '0.8'), 
+      rbind(samplesize200partition0.3traintest%>%col_summary(),
+            samplesize200partition0.5traintest%>%col_summary(),
+            samplesize200partition0.8traintest%>%col_summary()))%>%write.xlsx('DataProcessed/samplesize200partition.xlsx')
 
 
 

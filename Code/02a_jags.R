@@ -21,15 +21,15 @@ model {
   # Mixture proportion (lambda)
   lambda ~ dbeta(1, 1)  # Flat prior for mixture proportion
 
-  # Priors for the means (each component has different covariance for the prior)
-
-  mu[1, 1:2] ~ dmnorm(mu_prior[1,], cov_mu_prior_1[,])
-  mu[2, 1:2] ~ dmnorm(mu_prior[2,], cov_mu_prior_2[,])
-
-
   # Shared precision matrix (inverse of covariance matrix)
   Sigma_inv[1:2,1:2] ~ dwish(R[,], nu)  # Wishart prior for the precision matrix
   Sigma[1:2,1:2] <- inverse(Sigma_inv[,])  # Covariance matrix is the inverse of precision
+  
+  # Priors for the means (each component has different covariance for the prior)
+
+  mu[1, 1:2] ~ dmnorm(mu_prior, cov_mu_prior[,])
+  mu[2, 1:2] ~ dmnorm(mu_prior, cov_mu_prior[,])
+
 }
 "
 
@@ -41,9 +41,9 @@ bayesian_estimate <- function(data){
   data_jags <- list(
     Y = data,  # Nx2 data matrix
     N = nrow(data),  # Number of observations
-    mu_prior = matrix(c(0.1, 0.1, 0.05, 0.08), nrow = 2, ncol = 2, byrow = T),  # Means of the prior for mu (2x2)
-    cov_mu_prior_1 = diag(2)*10^6,  # Different covariance for the priors of mu
-    cov_mu_prior_2 = diag(2)*10^6, 
+    mu_prior = c(0.85,0.95),  # Means of the prior for mu (2x2)
+    cov_mu_prior = diag(2)*10^8,  # Different covariance for the priors of mu
+    # cov_mu_prior_2 = diag(2)*10^8, 
     R = diag(2)*10^-4,  # Scale matrix for the Wishart prior for Sigma_inv
     nu = 3  # Degrees of freedom for the Wishart prior
   )
@@ -64,7 +64,7 @@ bayesian_estimate <- function(data){
 
   return((samples))
 }
-
-
+bayes_examp <- bayesian_estimate(data)
+summary(bayes_examp)[[1]][,'Mean']%>%tail(4)
 
 
