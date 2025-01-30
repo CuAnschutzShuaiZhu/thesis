@@ -1,3 +1,9 @@
+rm(list = ls())
+source('Code/01_data_cleaning.R')
+source('Code/02a_jags.R')
+source('Code/02b_mnv.R')
+source('Code/03a_simulation.R')
+
 get_evaluation_metric <- function(index, sample){
   data <- sample[[index]]
   fit_cutpoint_Plasma <- suppressMessages(cutpointr(data = data, x =plasma, class = class))

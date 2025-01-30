@@ -58,38 +58,56 @@ run_simulation <- function(i, sample_size){
   model_list
 }
 
-## simulation setup
-# n_sim <- 1000
-# cl <- makeCluster( detectCores())
-# clusterSetRNGStream(cl, iseed = 123)
-# clusterEvalQ(cl,{
-#   library(MASS)
-#   library(dplyr)
-#   library(tidyr)
-#   library(mclust)
-#   library(rjags)
-#   NULL
-# })
-# clusterExport(cl, "generate_data")
-# clusterExport(cl, "bayesian_estimate")
-# clusterExport(cl, "model_string")
-# clusterExport(cl, "make_res_table")
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,50))
-# model_list%>%saveRDS('DataProcessed/samplesize50.RDS')
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,70))
-# model_list%>%saveRDS('DataProcessed/samplesize70.RDS')
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,100))
-# model_list%>%saveRDS('DataProcessed/samplesize100.RDS')
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,200))
-# model_list%>%saveRDS('DataProcessed/samplesize200.RDS')
-# 
-# system.time(model_list <- parLapply(cl,1:n_sim, run_simulation,500))
-# model_list%>%saveRDS('DataProcessed/samplesize500.RDS')
-# stopCluster(cl)
+run_simulation_train_test <- function(i, sample_size, datapartition){
+  set.seed(i+sample_size)
+  data <- generate_data(sample_size, 0.7)
+  model_freq <- Mclust(data[,1:2],G = 2,verbose = F)
+  train_index <- createDataPartition(1:sample_size, p = datapartition, list = T)
+  data[train_index$Resample1,'istrain'] <- 1
+  data[-train_index$Resample1,'istrain'] <- 0
+  train <- data[train_index$Resample1,]
+  test <- data[-train_index$Resample1,]
+  model_bays <- bayesian_estimate(train)
+  bays_df <- summary(model_bays)[[1]]%>%as.data.frame()
+  classification <- get_class(bays_df)[,'Mean']%>%round()
+  data[train_index$Resample1,'bayes_class'] <- classification
+  model_list <- list(freq = model_freq,
+                     bays = summary(model_bays),
+                     res_table = make_res_table(model_freq, summary(model_bays)),
+                     data = data)
+  model_list
+}
 
+parallel_sim <- function(sample_size, n_sim, datapartition){
+  cl <- makeCluster(6)
+  clusterEvalQ(cl,{
+    library(MASS)
+    library(dplyr)
+    library(tidyr)
+    library(mclust)
+    library(rjags)
+    library(caret)
+    NULL
+  })
+  clusterExport(cl, "generate_data")
+  clusterExport(cl, "bayesian_estimate")
+  clusterExport(cl, "model_string")
+  clusterExport(cl, "make_res_table")
+  clusterExport(cl, "get_class")
+  model_list <- parLapply(cl,1:n_sim, run_simulation_train_test, sample_size,datapartition)
+  stopCluster(cl)
+  saveRDS(model_list, file = paste0('DataProcessed/samplesize',sample_size,'partition',datapartition,'traintest.RDS'))
+}
 
+## example of simulation
+
+start <- Sys.time()
+cat('start runing', as.character(start))
+parallel_sim(200, 1000, 0.1)
+parallel_sim(200, 1000, 0.3)
+parallel_sim(200, 1000, 0.5)
+parallel_sim(200, 1000, 0.8)
+end <- Sys.time()
+cat('end runing', as.character(end))
+difftime(end, start, units = 'mins')
 

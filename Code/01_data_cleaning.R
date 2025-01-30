@@ -17,9 +17,14 @@ library(caret)
 library(gridExtra)
 library(MASS)
 library(parallel)
+library(bayesrules)
 ### setting working directory
-working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
-# working_directory <-  'C:\\Users\\zhu-s\\OneDrive\\Graduate File\\Course\\Thesis'
+if(Sys.info()[1] =='Windows'){
+  working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'
+}else if(Sys.info()[1]=='Linux'){
+  working_directory <-  '/home/shuai/thesis'
+}
+
 setwd(working_directory)
 
 ### read data

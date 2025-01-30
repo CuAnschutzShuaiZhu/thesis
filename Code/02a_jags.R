@@ -32,17 +32,14 @@ model {
 
 }
 "
-
-
-
 # Prepare the data for JAGS
 bayesian_estimate <- function(data){
   data <- data[,1:2]
   data_jags <- list(
     Y = data,  # Nx2 data matrix
     N = nrow(data),  # Number of observations
-    mu_prior = matrix(c(0.06, 0.09424948 , 0.09, 0.09424948), nrow = 2, byrow = 2),  # Means of the prior for mu (2x2)
-    cov_mu_prior = diag(2)*10^-3,  # Different covariance for the priors of mu
+    mu_prior = matrix(c(0.05, 0.095, 0.1, 0.095), nrow = 2, byrow = 2),  # Means of the prior for mu (2x2)
+    cov_mu_prior = diag(2)*10^-5,  # Different covariance for the priors of mu
     # cov_mu_prior_2 = diag(2)*10^8, 
     R = diag(2)*10^-4,  # Scale matrix for the Wishart prior for Sigma_inv
     nu = 10  # Degrees of freedom for the Wishart prior
@@ -52,12 +49,12 @@ bayesian_estimate <- function(data){
   model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 4, quiet = T)
   
   # Burn-in period
-  update(model, 100, progress.bar = 'none')
+  update(model, 200, progress.bar = 'none')
   
   # Draw samples from posterior
   
   invisible(capture.output(
-    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "lambda", 'Z'), quiet = T,n.iter= 1000)
+    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "lambda", 'Z'), quiet = T,n.iter= 2000)
                           ))
   
   # Check summary of posterior distributions
@@ -65,8 +62,8 @@ bayesian_estimate <- function(data){
   return((samples))
 }
 
-# bayes_examp <- bayesian_estimate(data)
-# sum <- summary(bayes_examp)[[1]][,'Mean']
+# sample <- run_simulation_train_test(5,200,0.8)
+# sample$bays[[1]][,'Mean']
 # matrix(tail(sum,4), byrow = F, nrow = 2)
-# plot(bayes_examp, density = F )
+# get_evaluation_metric2(sample)
 
