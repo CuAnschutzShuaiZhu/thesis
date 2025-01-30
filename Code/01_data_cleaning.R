@@ -17,7 +17,7 @@ library(caret)
 library(gridExtra)
 library(MASS)
 library(parallel)
-library(bayesrules)
+#library(bayesrules)
 ### setting working directory
 if(Sys.info()[1] =='Windows'){
   working_directory <-  'C:\\Users\\zhushu\\OneDrive\\Graduate File\\Course\\Thesis'

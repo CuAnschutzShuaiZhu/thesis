@@ -50,7 +50,7 @@ bayesian_estimate <- function(data){
   
   # Burn-in period
   update(model, 200, progress.bar = 'none')
-  
+  04
   # Draw samples from posterior
   
   invisible(capture.output(
