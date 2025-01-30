@@ -27,8 +27,8 @@ model {
   
   # Priors for the means (each component has different covariance for the prior)
 
-  mu[1, 1:2] ~ dmnorm(mu_prior, cov_mu_prior[,])
-  mu[2, 1:2] ~ dmnorm(mu_prior, cov_mu_prior[,])
+  mu[1, 1:2] ~ dmnorm(mu_prior[1,], cov_mu_prior[,])
+  mu[2, 1:2] ~ dmnorm(mu_prior[2,], cov_mu_prior[,])
 
 }
 "
@@ -41,30 +41,32 @@ bayesian_estimate <- function(data){
   data_jags <- list(
     Y = data,  # Nx2 data matrix
     N = nrow(data),  # Number of observations
-    mu_prior = c(0.85,0.95),  # Means of the prior for mu (2x2)
-    cov_mu_prior = diag(2)*10^8,  # Different covariance for the priors of mu
+    mu_prior = matrix(c(0.06, 0.09424948 , 0.09, 0.09424948), nrow = 2, byrow = 2),  # Means of the prior for mu (2x2)
+    cov_mu_prior = diag(2)*10^-3,  # Different covariance for the priors of mu
     # cov_mu_prior_2 = diag(2)*10^8, 
     R = diag(2)*10^-4,  # Scale matrix for the Wishart prior for Sigma_inv
-    nu = 3  # Degrees of freedom for the Wishart prior
+    nu = 10  # Degrees of freedom for the Wishart prior
   )
   set.seed(123)
   # Initialize JAGS model
   model <- jags.model(textConnection(model_string), data = data_jags, n.chains = 4, quiet = T)
   
   # Burn-in period
-  update(model, 1000, progress.bar = 'none')
+  update(model, 100, progress.bar = 'none')
   
   # Draw samples from posterior
   
   invisible(capture.output(
-    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "Z", "lambda"), quiet = T,n.iter= 5000)
+    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "lambda", 'Z'), quiet = T,n.iter= 1000)
                           ))
   
   # Check summary of posterior distributions
 
   return((samples))
 }
-bayes_examp <- bayesian_estimate(data)
-summary(bayes_examp)[[1]][,'Mean']%>%tail(4)
 
+# bayes_examp <- bayesian_estimate(data)
+# sum <- summary(bayes_examp)[[1]][,'Mean']
+# matrix(tail(sum,4), byrow = F, nrow = 2)
+# plot(bayes_examp, density = F )
 
