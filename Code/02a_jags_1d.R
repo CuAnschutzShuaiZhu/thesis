@@ -54,10 +54,8 @@ bayesian_estimate_uni <- function(data){
   
   return((samples))
 }
-bayesian_estimate(data)
-sample <- run_simulation_train_test(1,200,0.5)
-get_element(sample)%>%print()
-get_evaluation_metric2(sample)
+
+
 
 
 

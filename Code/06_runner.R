@@ -1,4 +1,9 @@
 
+suppressPackageStartupMessages(source('Code/01_data_cleaning.R'))
+source('Code/02a_jags.R')
+source('Code/02b_mnv.R')
+source('Code/04_data analysis.R')
+
 ## example of simulation
 start <- Sys.time()
 cat('start runing', as.character(start))
