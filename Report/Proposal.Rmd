@@ -1,0 +1,39 @@
+---
+title: "Plasma biomarker for Alzheimer’s disease"
+author: Shuai Zhu
+date: "`r Sys.Date()`"
+fontsize: 12pt
+geometry: "margin=1in"
+mainfont: Times New Roman
+documentclass: article
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    keep_tex: false
+    number_sections: false
+    fig_caption: true
+header-includes:
+  - \usepackage{setspace}
+  - \doublespacing
+bibliography: references.bib
+link-citations: true
+csl: biomed-central.csl
+---
+
+# Introduction
+
+Dementia is decline in cognitive abilities severe enough to interfere with daily life. People have dementia may experience memory loss, difficulty with problem-solving and change in behavior, mood and personality. In 2019, the estimated number of people develops dementia are 55 million and this number will increase to 139 million by 2050 across the worlds @worldof2020. Reported by World Health organization(WHO), Alzheimer’s disease is the most common cause of dementia and may contribute 60%-70% of cases @dementia. Alzheimer’s disease (AD) is a neurodegenerative disorder that leads to progressive cognitive decline. 
+
+# Limitation
+
+bias introduced by machine. we don't have true label of real data.
+
+\newpage
+
+# References
+<div id="refs"></div>
+
+
+# Appendix
+
+

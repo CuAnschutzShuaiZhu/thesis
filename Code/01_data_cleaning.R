@@ -9,13 +9,16 @@
 library(tidyverse)
 library(openxlsx)
 library(mclust)
-library(tidyr)
 library(table1)
 library(pROC)
 library(cutpointr)
 library(caret)
 library(gridExtra)
+library(rjags)
+library(coda)
 library(MASS)
+library(plyr)
+library(dplyr)
 library(parallel)
 #library(bayesrules)
 ### setting working directory
@@ -36,11 +39,12 @@ df_transposed <- read.csv('./DataRaw/transposed_data_240619.csv')%>%as_tibble()
 df_liia$visit <- factor(substr(df_liia$`Sample.ID`, 11, 11), labels = c("baseline", "followup")) 
 
 
-LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%
+LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%drop_na()%>%
   mutate(across(c(`Plasma.P-Tau181.(pg/ml)`, `Plasma.AB40.(pg/ml)`), as.numeric))
 
 data.fit <- LIIA_baseline%>%
-  dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))%>%drop_na()
+  dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))
 colnames(data.fit ) <- c("csf", "plasma")
 data.fit%>%saveRDS('DataProcessed/datafit.RDS')
+
 

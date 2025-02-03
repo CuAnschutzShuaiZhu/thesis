@@ -1,6 +1,4 @@
-## Bayesian
-library(rjags)
-library(coda)
+
 # JAGS model code for two-component bivariate normal mixture
 
 model_string <- "
@@ -11,10 +9,7 @@ model {
     
     # Shared covariance matrix (Sigma_inv) for both components
     Y[i,1:2] ~ dmnorm(mu[Z[i] + 1,], Sigma_inv[,])  # Precision matrix used here
-    
-  # Posterior predictive distribution for Y
-    # Z_pred[i] ~ dbern(lambda)
-    # Y_pred[i, 1:2] ~ dmnorm(mu[Z_pred[i] + 1,], Sigma_inv[,])  # Using same parameters
+
   }
   
   # Priors
@@ -29,7 +24,6 @@ model {
 
   mu[1, 1:2] ~ dmnorm(mu_prior[1,], cov_mu_prior[,])
   mu[2, 1:2] ~ dmnorm(mu_prior[2,], cov_mu_prior[,])
-
 }
 "
 # Prepare the data for JAGS
@@ -42,7 +36,7 @@ bayesian_estimate <- function(data){
     cov_mu_prior = diag(2)*10^-5,  # Different covariance for the priors of mu
     # cov_mu_prior_2 = diag(2)*10^8, 
     R = diag(2)*10^-4,  # Scale matrix for the Wishart prior for Sigma_inv
-    nu = 10  # Degrees of freedom for the Wishart prior
+    nu = 2  # Degrees of freedom for the Wishart prior
   )
   set.seed(123)
   # Initialize JAGS model
@@ -50,7 +44,6 @@ bayesian_estimate <- function(data){
   
   # Burn-in period
   update(model, 200, progress.bar = 'none')
-  04
   # Draw samples from posterior
   
   invisible(capture.output(
@@ -62,8 +55,103 @@ bayesian_estimate <- function(data){
   return((samples))
 }
 
-# sample <- run_simulation_train_test(5,200,0.8)
-# sample$bays[[1]][,'Mean']
-# matrix(tail(sum,4), byrow = F, nrow = 2)
-# get_evaluation_metric2(sample)
+
+## crate functions
+
+generate_data <- function(sample_size, prob){
+  N1 <- sample_size*prob ## high csf 
+  N2 <- sample_size-N1 ## lower csf
+  mu1 <- c(0.1, 0.1)
+  mu2 <- c(0.05, 0.08)
+  vcov1 <- matrix(c(0.000108 , 0.000037, 0.000037 , 0.000103), nrow = 2, byrow = 2)
+  sample1 <- mvrnorm(N1, mu = mu1, Sigma = vcov1 )
+  sample2 <- mvrnorm(N2, mu = mu2, Sigma = vcov1 )
+  sample.mvn <- rbind(sample1,sample2)%>%data.frame()
+  colnames(sample.mvn) <- c('csf', 'plasma')
+  sample.mvn$true_class <- c(rep('Positive', N1),rep('Negative', N2) )
+  #plot(sample.mvn)
+  return(sample.mvn)
+}
+
+make_res_table <- function(model_freq, samples_summary){
+  freq_mean_vec <- c(model_freq$parameters$mean[,1], model_freq$parameters$mean[,2])
+  baye_mean_vec <- tail(samples_summary[1]$statistics[,1], 4)
+  lambda_vec <- c(model_freq$parameters$pro[1], 1-tail(samples_summary[1]$statistics[,1], 5)[1])
+  freq_sigma_vec <- model_freq$parameters$variance$sigma[c(1,2,4)]
+  baye_sigma_vec <- samples_summary[1]$statistics[c(1,2,4),1]
+  
+  df_res <- cbind(freq_mean_vec, c(baye_mean_vec[1], baye_mean_vec[3], baye_mean_vec[2], baye_mean_vec[4]))
+  df_res <- rbind(df_res,lambda_vec, cbind(freq_sigma_vec, baye_sigma_vec))
+  colnames(df_res) <- c('Frequentist', 'Bayesian')
+  rownames(df_res) <- c("csf1 mean", "plasma1 mean", "csf2 mean", "plasma2 mean", 'lambda', 'Sigma csf', 'Sigma csf plasma', 'Sigma plasma')
+  
+  df_res%>%round(.,digits = 7)
+}
+
+get_class <- function(bays_df){
+  z_df <- bays_df[grepl("^Z", rownames(bays_df)), ]
+  return(z_df)
+}
+get_element <- function(sample){
+  #z <- sample$bays[[1]][grepl("^Z", rownames(sample$bays[[1]])), ][,'Mean']
+  lambda <- tail(sample$bays[[1]][,'Mean'],5)[1]
+  mean <- matrix(tail(sample$bays[[1]][,'Mean'],4), byrow = F, nrow = 2)%>%round(.,digits = 5)
+  sigma <- matrix(head(sample$bays[[1]][,'Mean'],4), byrow = F, nrow = 2)%>%round(.,digits = 5)
+  list(lambda = lambda, mean = mean,cov = sigma)
+}
+
+run_simulation <- function(i, sample_size){
+  set.seed(i+sample_size)
+  data <- generate_data(sample_size, 0.7)
+  model_freq <- Mclust(data,G = 2,verbose = F)
+  model_bays <- bayesian_estimate(data)
+  model_list <- list(freq = model_freq,
+                     bays = model_bays,
+                     res_table = make_res_table(model_freq, summary(model_bays)),
+                     data = data)
+  model_list
+}
+
+run_simulation_train_test <- function(i, sample_size, datapartition){
+  set.seed(i+sample_size)
+  data <- generate_data(sample_size, 0.7)
+  model_freq <- Mclust(data[,1:2],G = 2,verbose = F)
+  train_index <- createDataPartition(1:sample_size, p = datapartition, list = T)
+  data[train_index$Resample1,'istrain'] <- 1
+  data[-train_index$Resample1,'istrain'] <- 0
+  train <- data[train_index$Resample1,]
+  test <- data[-train_index$Resample1,]
+  model_bays <- bayesian_estimate(train)
+  bays_df <- summary(model_bays)[[1]]%>%as.data.frame()
+  classification <- get_class(bays_df)[,'Mean']%>%round()
+  data[train_index$Resample1,'bayes_class'] <- classification
+  model_list <- list(freq = model_freq,
+                     bays = summary(model_bays),
+                     res_table = make_res_table(model_freq, summary(model_bays)),
+                     data = data)
+  model_list
+}
+
+parallel_sim <- function(sample_size, n_sim, datapartition){
+  cl <- makeCluster(6)
+  clusterEvalQ(cl,{
+    library(MASS)
+    library(dplyr)
+    library(tidyr)
+    library(mclust)
+    library(rjags)
+    library(caret)
+    NULL
+  })
+  clusterExport(cl, "generate_data")
+  clusterExport(cl, "bayesian_estimate")
+  clusterExport(cl, "model_string")
+  clusterExport(cl, "make_res_table")
+  clusterExport(cl, "get_class")
+  model_list <- parLapply(cl,1:n_sim, run_simulation_train_test, sample_size,datapartition)
+  stopCluster(cl)
+  saveRDS(model_list, file = paste0('DataProcessed/samplesize',sample_size,'partition',datapartition,'traintest.RDS'))
+}
+
+
 

@@ -1,8 +1,7 @@
 rm(list = ls())
-source('Code/01_data_cleaning.R')
+suppressPackageStartupMessages(source('Code/01_data_cleaning.R'))
 source('Code/02a_jags.R')
 source('Code/02b_mnv.R')
-source('Code/03a_simulation.R')
 
 get_evaluation_metric <- function(index, sample){
   data <- sample[[index]]
@@ -36,17 +35,4 @@ col_summary <- function(data){
     sprintf("%.4f (%.4f)", mean(x), sd(x))
   })
 }
-
-
-
-## simulation version 2
-samplesize200partition0.3traintest<- do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.3traintest.RDS"), get_evaluation_metric2))
-samplesize200partition0.5traintest <- do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.5traintest.RDS"), get_evaluation_metric2))
-samplesize200partition0.8traintest <- do.call(rbind, lapply(readRDS("DataProcessed/samplesize200partition0.8traintest.RDS"), get_evaluation_metric2))
-cbind(train_size = c('0.3', '0.5', '0.8'), 
-      rbind(samplesize200partition0.3traintest%>%col_summary(),
-            samplesize200partition0.5traintest%>%col_summary(),
-            samplesize200partition0.8traintest%>%col_summary()))%>%write.xlsx('DataProcessed/samplesize200partition.xlsx')
-
-
 
