@@ -17,7 +17,7 @@ model {
   lambda ~ dbeta(2, 1)  # Flat prior for mixture proportion
 
   # Shared precision matrix (inverse of covariance matrix)
-  Sigma_inv ~ dgamma(sigma_prior[1], sigma_prior)  # Wishart prior for the precision matrix
+  Sigma_inv ~ dgamma(sigma_prior[1], sigma_prior[2])  # Wishart prior for the precision matrix
   Sigma <- inverse(Sigma_inv)  # Covariance matrix is the inverse of precision
   
   # Priors for the means (each component has different covariance for the prior)
@@ -29,33 +29,29 @@ model {
 "
 # Prepare the data for JAGS
 bayesian_estimate_uni <- function(data){
-  data <- data[,1]
+  data_1d <- data[,1]%>%unlist()%>%as.vector()
   data_jags <- list(
-    Y = data,  # Nx2 data matrix
+    Y = data_1d,  # N vector
     N = nrow(data),  # Number of observations
-    mu_prior = c(0.05,0.1),  # Means of the prior for mu (2x2)
+    mu_prior = c(0.06, 0.1),  # Means of the prior for mu 
     cov_mu_prior = 10^-5,  # Different covariance for the priors of mu
-    # cov_mu_prior_2 = diag(2)*10^8, 
-    sigma_prior = c(0.001,0.001), 
+    sigma_prior = c(10^-4, 10^-4) 
   )
-  set.seed(123)
   # Initialize JAGS model
   model <- jags.model(textConnection(model_string_uni), data = data_jags, n.chains = 4, quiet = T)
   
   # Burn-in period
-  update(model, 200, progress.bar = 'none')
+  update(model, 1000, progress.bar = 'none')
   # Draw samples from posterior
   
   invisible(capture.output(
-    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "lambda", 'Z'), quiet = T,n.iter= 2000)
+    samples <- coda.samples(model, variable.names = c("mu", "Sigma", "lambda",'Z'), quiet = T,n.iter= 5000)
   ))
   
   # Check summary of posterior distributions
   
   return((samples))
 }
-
-
 
 
 

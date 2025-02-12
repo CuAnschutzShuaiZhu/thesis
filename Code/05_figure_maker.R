@@ -1,7 +1,7 @@
 ### histogram of real data
 
-plot_csf <- data.fit%>%ggplot(aes(x = csf))+geom_histogram()
-plot_plasma <- data.fit%>%ggplot(aes(x = plasma))+geom_histogram()
+plot_csf <- data.fit%>%ggplot(aes(x = csf))+geom_histogram()+labs(x = 'CSF Ab 42/40 ratio')
+plot_plasma <- data.fit%>%ggplot(aes(x = plasma))+geom_histogram()+labs(x = 'Plasma Ab 42/40 ratio', y = '')
 g <- arrangeGrob(plot_csf, plot_plasma, ncol=2)
 ggsave('Figures/histogram of csf and plasma.png',g, width = 20, height = 10, units = 'cm')
 
@@ -29,12 +29,10 @@ cbind(get_df_withclass(1, 'sample500'), size = rep('simulated data with sample s
 ggsave('Figures/scatter plot of csf and plasma with classificaton.png',dpi = 300, width = 30, height = 30, units = 'cm')
 
 ## trace plot of bayes parameter
-png('Figures/traceplot.png', res = 100, width = 30, height = 30, units = 'cm')
-par(mfrow = c(12, 12), mar = c(1, 1, 1, 1))
-theta_vec <- bayes[[1]]%>%colnames()
-for(i in 1:length(theta_vec)){
-  plot(bayes[[1]][,theta_vec[i]]%>%as.vector(), type = 'l', main = theta_vec[i], ylab = '',xaxt = "n",)
-}
+png('Figures/traceplot of real data.png', res = 100, width = 40, height = 30, units = 'cm')
+real_bays <- bayesian_estimate(data.fit)
+par(mfrow = c(3,3))
+traceplot(real_bays)
 dev.off()
 
 

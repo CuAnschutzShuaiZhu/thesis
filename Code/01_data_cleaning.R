@@ -6,7 +6,6 @@
 ######################################
 # Bayesian model. 
 ### load library
-library(tidyverse)
 library(openxlsx)
 library(mclust)
 library(table1)
@@ -17,6 +16,7 @@ library(gridExtra)
 library(rjags)
 library(coda)
 library(MASS)
+library(tidyverse)
 library(plyr)
 library(dplyr)
 library(parallel)
@@ -39,12 +39,14 @@ df_transposed <- read.csv('./DataRaw/transposed_data_240619.csv')%>%as_tibble()
 df_liia$visit <- factor(substr(df_liia$`Sample.ID`, 11, 11), labels = c("baseline", "followup")) 
 
 
-LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%drop_na()%>%
+LIIA_baseline <- df_liia%>%filter(visit=="baseline")%>%
   mutate(across(c(`Plasma.P-Tau181.(pg/ml)`, `Plasma.AB40.(pg/ml)`), as.numeric))
 
 data.fit <- LIIA_baseline%>%
-  dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))
+  dplyr::select(c('CSF.AB42/40.Ratio', 'Plasma.AB42/40.Ratio'))%>%drop_na()
+table1(~.,data = data.fit, caption = 'ABeta ratio summary')%>%saveRDS('DataProcessed/table1.RDS')
 colnames(data.fit ) <- c("csf", "plasma")
 data.fit%>%saveRDS('DataProcessed/datafit.RDS')
+
 
 

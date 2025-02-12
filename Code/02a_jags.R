@@ -14,7 +14,7 @@ model {
   
   # Priors
   # Mixture proportion (lambda)
-  lambda ~ dbeta(1, 1)  # Flat prior for mixture proportion
+  lambda ~ dbeta(2, 1)  # Flat prior for mixture proportion
 
   # Shared precision matrix (inverse of covariance matrix)
   Sigma_inv[1:2,1:2] ~ dwish(R[,], nu)  # Wishart prior for the precision matrix
@@ -94,7 +94,7 @@ get_class <- function(bays_df){
 }
 get_element <- function(sample){
   #z <- sample$bays[[1]][grepl("^Z", rownames(sample$bays[[1]])), ][,'Mean']
-  lambda <- tail(sample$bays[[1]][,'Mean'],5)[1]
+  lambda <- sample$bays[[1]]['lambda','Mean']
   mean <- matrix(tail(sample$bays[[1]][,'Mean'],4), byrow = F, nrow = 2)%>%round(.,digits = 5)
   sigma <- matrix(head(sample$bays[[1]][,'Mean'],4), byrow = F, nrow = 2)%>%round(.,digits = 5)
   list(lambda = lambda, mean = mean,cov = sigma)
@@ -112,7 +112,7 @@ run_simulation <- function(i, sample_size){
   model_list
 }
 
-run_simulation_train_test <- function(i, sample_size, datapartition){
+run_simulation_train_test <- function(i,f, sample_size, datapartition){
   set.seed(i+sample_size)
   data <- generate_data(sample_size, 0.7)
   model_freq <- Mclust(data[,1:2],G = 2,verbose = F)
@@ -121,7 +121,7 @@ run_simulation_train_test <- function(i, sample_size, datapartition){
   data[-train_index$Resample1,'istrain'] <- 0
   train <- data[train_index$Resample1,]
   test <- data[-train_index$Resample1,]
-  model_bays <- bayesian_estimate(train)
+  model_bays <- f(train)
   bays_df <- summary(model_bays)[[1]]%>%as.data.frame()
   classification <- get_class(bays_df)[,'Mean']%>%round()
   data[train_index$Resample1,'bayes_class'] <- classification
@@ -132,26 +132,7 @@ run_simulation_train_test <- function(i, sample_size, datapartition){
   model_list
 }
 
-parallel_sim <- function(sample_size, n_sim, datapartition){
-  cl <- makeCluster(6)
-  clusterEvalQ(cl,{
-    library(MASS)
-    library(dplyr)
-    library(tidyr)
-    library(mclust)
-    library(rjags)
-    library(caret)
-    NULL
-  })
-  clusterExport(cl, "generate_data")
-  clusterExport(cl, "bayesian_estimate")
-  clusterExport(cl, "model_string")
-  clusterExport(cl, "make_res_table")
-  clusterExport(cl, "get_class")
-  model_list <- parLapply(cl,1:n_sim, run_simulation_train_test, sample_size,datapartition)
-  stopCluster(cl)
-  saveRDS(model_list, file = paste0('DataProcessed/samplesize',sample_size,'partition',datapartition,'traintest.RDS'))
-}
+
 
 
 
